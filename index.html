@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="app.js"></script>
+  </head>
+  <body>
+    <h1>Blackjack</h1>
+    <div id="playerCards"></div>
+    <div id="dealerCards"></div>
+    <button id="deal"></button>
+    <script>
+      const playerCards = document.getElementById("playerCards");
+      const dealerCards = document.getElementById("dealerCards");
+      const deal = document.getElementById("deal");
+      let cardList = [];
+      let card2 = [];
+      let suits;
+      let nums;
+      shuffle();
+      let bCard;
+      deal.addEventListener("click", () => {
+        randCard = Math.floor(Math.random() * cardList.length);
+        console.log(cardList[randCard]);
+        bCard = new Card(cardList[randCard][0], cardList[randCard][1]);
+        playerCards.append(bCard.element);
+        cardList.pop(randCard)
+      });
+
+      console.log(playerCards);
+
+      function shuffle() {
+        suits = ["spades", "hearts", "diamonds", "clubs"];
+        nums = [
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "J",
+          "K",
+          "Q",
+          "ace",
+        ];
+        for (suit of suits) {
+          for (num of nums) {
+            card2.push(suit);
+            card2.push(num);
+            console.log(suit + " | " + num);
+            cardList.push(card2);
+            card2 = [];
+          }
+        }
+      }
+    </script>
+  </body>
+</html>
