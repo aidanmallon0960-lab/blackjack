@@ -23,6 +23,27 @@ img {
   margin: 10px;
   text-align: center;
 }
+.winorlose {
+  font-size: 25px;
+  color: white;
+  margin: 10px;
+  text-align: center;
+}
+
+#bust{
+  color: red;
+  font-weight: bold;
+}
+
+#win{
+  color: greenyellow;
+  font-weight: bold;
+}
+
+#tie{
+  color: white;
+  font-weight: bold;
+}
 
 h1 {
   text-align: center;
@@ -37,7 +58,7 @@ h1 {
   height: 40vh;
 }
 
-#btnContainer {
+.btnContainer {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -64,4 +85,10 @@ button {
 #stand {
   color: black;
   background-color: orange;
+}
+
+#restart {
+  width: 220px;
+  color: black;
+  background-color: white;
 }

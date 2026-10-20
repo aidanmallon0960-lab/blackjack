@@ -11,42 +11,53 @@
     <h1 id="title">Black<span style="color: red">jack</span></h1>
     <h2 id="subTitle">Let's Play</h2>
     <div id="cardContainer">
-      <div id="playerCards">
-        <h1 id="playerT">You:</h1>
-      </div>
-      <div id="dealerCards">
-        <h1 id="dealerT"></h1>
-      </div>
+      <div id="playerCards"></div>
+      <div id="dealerCards"></div>
     </div>
-    <div id="btnContainer">
+    <p class="winorlose"></p>
+    <div class="btnContainer" id="playBtns">
       <button id="hit">Hit</button>
       <button id="stand">Stand</button>
+    </div>
+    <br />
+    <div class="btnContainer" id="restartBtn">
+      <button id="restart">Play Again</button>
     </div>
 
     <script>
       const playerCards = document.getElementById("playerCards");
       const dealerCards = document.getElementById("dealerCards");
-      const playerT = document.getElementById("playerT");
-      const dealerT = document.getElementById("dealerT");
+      const playerT = document.createElement("h1");
+      const dealerT = document.createElement("h1");
       const hit = document.getElementById("hit");
       const stand = document.getElementById("stand");
+      const restart = document.getElementById("restart");
+      const thing = document.querySelector(".winorlose");
+      const playBtns = document.getElementById("playBtns");
+      const restartBtn = document.getElementById("restartBtn");
+      restartBtn.style.display = "none";
       let cardList = [];
       let card2 = [];
       let suits;
       let nums;
-      let playerTotal = 0;
-      let dealerTotal = 0;
+      let aces;
+      let playerTotal;
+      let dealerTotal;
       let playerCard, dealerCard;
       let dealerHoleCard;
-      shuffle();
       startGame();
+
       hit.addEventListener("click", () => {
         playerDrawCard();
       });
       stand.addEventListener("click", () => {
+        playBtns.style.display = "none";
         setTimeout(() => {
           dealerTurn();
         }, 500);
+      });
+      restart.addEventListener("click", () => {
+        startGame();
       });
 
       function playerDrawCard() {
@@ -55,24 +66,66 @@
         playerCard = new Card(cardList[randCard][0], cardList[randCard][1]);
         playerCards.append(playerCard.element);
         playerTotal += playerCard.value;
-        cardList.splice(randCard, 1);
-        if (playerTotal > 21) {
-          checkWinner();
-        }
         playerT.innerHTML = `You: ${playerTotal}`;
+        if (playerCard.value == 11) {
+          aces += 1;
+        }
+        cardList.splice(randCard, 1);
+        if (playerTotal > 21 && aces != 0) {
+          playerTotal -= 10;
+          aces--;
+          playerT.innerHTML = `You: ${playerTotal}`;
+        } else if ((playerTotal > 21 && aces == 0) || playerTotal == 21) {
+          playerT.innerHTML = `You: ${playerTotal}`;
+          playBtns.style.display = "none";
+          setTimeout(() => {
+            dealerHoleCard.flipped = false;
+            checkWinner();
+          }, 500);
+        }
       }
 
-      function dealerTurn() {
+      //ai added async and promise
+      async function dealerTurn() {
         dealerHoleCard.flipped = false;
         dealerT.innerHTML = `Dealer: ${dealerTotal}`;
+        while (dealerTotal < 17) {
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          const randCard = Math.floor(Math.random() * cardList.length);
+          dealerHoleCard = new Card(
+            cardList[randCard][0],
+            cardList[randCard][1],
+          );
+          dealerHoleCard.element.id = "flippedCard";
+          dealerCards.append(dealerHoleCard.element);
+          dealerTotal += dealerHoleCard.value;
+          dealerT.innerHTML = `Dealer: ${dealerTotal}`;
+          cardList.splice(randCard, 1);
+        }
+        checkWinner();
       }
 
       function checkWinner() {
-        hit.disabled = true;
-        stand.disabled = true;
+        restartBtn.style.display = "flex";
+        dealerT.innerHTML = `Dealer: ${dealerTotal}`;
+        dealerHoleCard.flipped = false;
+        if (playerTotal > 21) {
+          thing.innerHTML = "DEALER WINS";
+          thing.id = "bust";
+        } else if (dealerTotal > 21) {
+          thing.innerHTML = "PLAYER WINS";
+          thing.id = "win";
+        } else if (dealerTotal > playerTotal) {
+          thing.innerHTML = "DEALER WINS";
+          thing.id = "bust";
+        } else if (playerTotal > dealerTotal) {
+          thing.innerHTML = "PLAYER WINS";
+          thing.id = "win";
+        } else if (playerTotal == dealerTotal) {
+          thing.innerHTML = "TIE";
+          thing.id = "tie";
+        }
       }
-
-      console.log(playerCards);
 
       // function startGame(){
       //   randCard = Math.floor(Math.random() * cardList.length);
@@ -89,6 +142,20 @@
       // }
 
       function startGame() {
+        playerCards.replaceChildren();
+        dealerCards.replaceChildren();
+        playerT.id = "playerT";
+        dealerT.id = "dealerT";
+        playerCards.appendChild(playerT);
+        dealerCards.appendChild(dealerT);
+        dealerT.innerHTML = "";
+        thing.innerHTML = "";
+        restartBtn.style.display = "none";
+        playBtns.style.display = "flex";
+        playerTotal = 0;
+        dealerTotal = 0;
+        shuffle();
+        aces = 0;
         randCard = Math.floor(Math.random() * cardList.length);
         dealerHoleCard = new Card(cardList[randCard][0], cardList[randCard][1]);
         dealerHoleCard.element.id = "flippedCard";
@@ -107,7 +174,7 @@
         cardList.splice(secondIndex, 1);
         playerDrawCard();
         playerDrawCard();
-        dealerT.innerHTML += `Dealer: ${dealerTotal - dealerHoleCard.value}`;
+        dealerT.innerHTML += `Dealer: ${dealerTotal - dealerHoleCard.value}?`;
       }
 
       function shuffle() {
@@ -127,6 +194,7 @@
           "Q",
           "ace",
         ];
+        card2=[]
         for (suit of suits) {
           for (num of nums) {
             card2.push(suit);
