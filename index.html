@@ -8,29 +8,107 @@
     <script src="app.js"></script>
   </head>
   <body>
-    <h1>Blackjack</h1>
-    <div id="playerCards"></div>
-    <div id="dealerCards"></div>
-    <button id="deal"></button>
+    <h1 id="title">Black<span style="color: red">jack</span></h1>
+    <h2 id="subTitle">Let's Play</h2>
+    <div id="cardContainer">
+      <div id="playerCards">
+        <h1 id="playerT">You:</h1>
+      </div>
+      <div id="dealerCards">
+        <h1 id="dealerT"></h1>
+      </div>
+    </div>
+    <div id="btnContainer">
+      <button id="hit">Hit</button>
+      <button id="stand">Stand</button>
+    </div>
+
     <script>
       const playerCards = document.getElementById("playerCards");
       const dealerCards = document.getElementById("dealerCards");
-      const deal = document.getElementById("deal");
+      const playerT = document.getElementById("playerT");
+      const dealerT = document.getElementById("dealerT");
+      const hit = document.getElementById("hit");
+      const stand = document.getElementById("stand");
       let cardList = [];
       let card2 = [];
       let suits;
       let nums;
+      let playerTotal = 0;
+      let dealerTotal = 0;
+      let playerCard, dealerCard;
+      let dealerHoleCard;
       shuffle();
-      let bCard;
-      deal.addEventListener("click", () => {
-        randCard = Math.floor(Math.random() * cardList.length);
-        console.log(cardList[randCard]);
-        bCard = new Card(cardList[randCard][0], cardList[randCard][1]);
-        playerCards.append(bCard.element);
-        cardList.pop(randCard)
+      startGame();
+      hit.addEventListener("click", () => {
+        playerDrawCard();
+      });
+      stand.addEventListener("click", () => {
+        setTimeout(() => {
+          dealerTurn();
+        }, 500);
       });
 
+      function playerDrawCard() {
+        randCard = Math.floor(Math.random() * cardList.length);
+        console.log(cardList[randCard]);
+        playerCard = new Card(cardList[randCard][0], cardList[randCard][1]);
+        playerCards.append(playerCard.element);
+        playerTotal += playerCard.value;
+        cardList.splice(randCard, 1);
+        if (playerTotal > 21) {
+          checkWinner();
+        }
+        playerT.innerHTML = `You: ${playerTotal}`;
+      }
+
+      function dealerTurn() {
+        dealerHoleCard.flipped = false;
+        dealerT.innerHTML = `Dealer: ${dealerTotal}`;
+      }
+
+      function checkWinner() {
+        hit.disabled = true;
+        stand.disabled = true;
+      }
+
       console.log(playerCards);
+
+      // function startGame(){
+      //   randCard = Math.floor(Math.random() * cardList.length);
+      //   console.log(cardList[randCard]);
+      //   dealerCard = new Card(cardList[randCard][0], cardList[randCard][1]);
+      //   dealerCard.id = 'flippedCard';
+      //   dealerCards.append(dealerCard.element);
+      //   dealerCard.flipped = true;
+      //   dealerTotal+=dealerCard.value;
+      //   dealerCard = new Card(cardList[randCard][0], cardList[randCard][1]);
+      //   dealerCards.append(dealerCard.element);
+      //   dealerTotal+=dealerCard.value;
+      //   cardList.pop(randCard)
+      // }
+
+      function startGame() {
+        randCard = Math.floor(Math.random() * cardList.length);
+        dealerHoleCard = new Card(cardList[randCard][0], cardList[randCard][1]);
+        dealerHoleCard.element.id = "flippedCard";
+        dealerCards.append(dealerHoleCard.element);
+        dealerHoleCard.flipped = true;
+        dealerTotal += dealerHoleCard.value;
+        cardList.splice(randCard, 1);
+
+        const secondIndex = Math.floor(Math.random() * cardList.length);
+        dealerCard = new Card(
+          cardList[secondIndex][0],
+          cardList[secondIndex][1],
+        );
+        dealerCards.append(dealerCard.element);
+        dealerTotal += dealerCard.value;
+        cardList.splice(secondIndex, 1);
+        playerDrawCard();
+        playerDrawCard();
+        dealerT.innerHTML += `Dealer: ${dealerTotal - dealerHoleCard.value}`;
+      }
 
       function shuffle() {
         suits = ["spades", "hearts", "diamonds", "clubs"];
