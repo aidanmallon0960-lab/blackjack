@@ -23,8 +23,16 @@
     <div class="btnContainer" id="restartBtn">
       <button id="restart">Play Again</button>
     </div>
+    <div class="bettingWindow">
+      <p id="bettingMoney">$placeholder</p>
+      <input type="number" name="name" id="bet" />
+      <button style="width: 50px; height: 30px; font-size: 20px" id="betSubmit">
+        Bet
+      </button>
+    </div>
 
     <script>
+      const cardContainer = document.getElementById("cardContainer");
       const playerCards = document.getElementById("playerCards");
       const dealerCards = document.getElementById("dealerCards");
       const playerT = document.createElement("h1");
@@ -35,6 +43,9 @@
       const thing = document.querySelector(".winorlose");
       const playBtns = document.getElementById("playBtns");
       const restartBtn = document.getElementById("restartBtn");
+      const bmContainer = document.getElementById("bettingMoney");
+      let bet;
+      const betSubmit = document.getElementById("betSubmit");
       restartBtn.style.display = "none";
       let cardList = [];
       let card2 = [];
@@ -45,7 +56,11 @@
       let dealerTotal;
       let playerCard, dealerCard;
       let dealerHoleCard;
-      startGame();
+      let bettingMoney = 200;
+      bmContainer.innerHTML = `$${bettingMoney}`;
+      restartBtn.style.display = "none";
+      playBtns.style.display = "none";
+      cardContainer.style.display = "none";
 
       hit.addEventListener("click", () => {
         playerDrawCard();
@@ -57,8 +72,36 @@
         }, 500);
       });
       restart.addEventListener("click", () => {
-        startGame();
+        playerCards.replaceChildren();
+        dealerCards.replaceChildren();
+        playerT.id = "playerT";
+        dealerT.id = "dealerT";
+        playerCards.appendChild(playerT);
+        dealerCards.appendChild(dealerT);
+        dealerT.innerHTML = "";
+        playerT.innerHTML = "";
+        thing.innerHTML = "";
+        restartBtn.style.display = "none";
+        playBtns.style.display = "none";
+        cardContainer.style.display = "none";
       });
+
+      betSubmit.addEventListener("click", () => {
+        placeBet();
+      });
+
+      function placeBet() {
+        bet = document.getElementById("bet").value;
+        if (bet > bettingMoney || bet == "" || bet == 0 || bet < 0) {
+          window.alert("Please enter a valid number");
+          bet = 0;
+        } else {
+          bettingMoney -= bet;
+          bmContainer.innerHTML = `$${bettingMoney}`;
+          betSubmit.disabled = true;
+          startGame();
+        }
+      }
 
       function playerDrawCard() {
         randCard = Math.floor(Math.random() * cardList.length);
@@ -112,19 +155,31 @@
         if (playerTotal > 21) {
           thing.innerHTML = "DEALER WINS";
           thing.id = "bust";
+          betSubmit.disabled = false;
         } else if (dealerTotal > 21) {
           thing.innerHTML = "PLAYER WINS";
           thing.id = "win";
+          bettingMoney += bet * 2;
+          bmContainer.innerHTML = `$${bettingMoney}`;
         } else if (dealerTotal > playerTotal) {
           thing.innerHTML = "DEALER WINS";
           thing.id = "bust";
+          betSubmit.disabled = false;
         } else if (playerTotal > dealerTotal) {
           thing.innerHTML = "PLAYER WINS";
           thing.id = "win";
+          thing.id = "win";
+          bettingMoney += bet * 2;
+          bmContainer.innerHTML = `$${bettingMoney}`;
         } else if (playerTotal == dealerTotal) {
           thing.innerHTML = "TIE";
           thing.id = "tie";
+          thing.id = "win";
+          bettingMoney += bet;
+          bmContainer.innerHTML = `$${bettingMoney}`;
         }
+        betSubmit.disabled = false;
+        bet = 0;
       }
 
       // function startGame(){
@@ -142,6 +197,7 @@
       // }
 
       function startGame() {
+        cardContainer.style.display = "flex";
         playerCards.replaceChildren();
         dealerCards.replaceChildren();
         playerT.id = "playerT";
@@ -194,7 +250,7 @@
           "Q",
           "ace",
         ];
-        card2=[]
+        card2 = [];
         for (suit of suits) {
           for (num of nums) {
             card2.push(suit);
